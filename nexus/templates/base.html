@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="system">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Librería Bluffer{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+<header class="site-header" id="site-header">
+  <div class="header-inner">
+    <a class="brand" href="{{ url_for('catalog.home') }}">
+      <svg class="brand-mark" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+        <path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H10a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H5.5A1.5 1.5 0 0 0 4 18.5V4.5Z" fill="currentColor" opacity=".28"/>
+        <path d="M20 4.5A1.5 1.5 0 0 0 18.5 3H14a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h4.5a1.5 1.5 0 0 1 1.5 1.5V4.5Z" fill="currentColor"/>
+      </svg>
+      <span class="brand-name">Librería Bluffer</span>
+    </a>
+
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Abrir menú de navegación">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false">
+        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+
+    <nav class="main-nav" id="primary-nav" aria-label="Principal">
+      <a href="{{ url_for('catalog.home') }}"{% if request.endpoint == 'catalog.home' %} aria-current="page"{% endif %}>Inicio</a>
+      <a href="{{ url_for('catalog.explorar') }}"{% if request.endpoint == 'catalog.explorar' %} aria-current="page"{% endif %}>Explorar</a>
+      {% if session.get('user_id') %}
+      <a href="{{ url_for('library.favorites') }}"{% if request.endpoint == 'library.favorites' %} aria-current="page"{% endif %}>♥ Favoritos</a>
+      <a href="{{ url_for('auth.perfil') }}"{% if request.endpoint == 'auth.perfil' %} aria-current="page"{% endif %}>Perfil</a>
+      {% if session.get('role') == 'admin' %}
+      <a href="{{ url_for('admin.listar_libros') }}"{% if request.endpoint and request.endpoint.startswith('admin.') %} aria-current="page"{% endif %}>Admin</a>
+      {% endif %}
+      {% endif %}
+    </nav>
+
+    <div class="header-tools">
+      <form class="search-form" role="search" method="get" action="{{ url_for('catalog.explorar') }}">
+        <label class="sr-only" for="site-search">Buscar libros</label>
+        <input id="site-search" type="search" name="q" value="{{ request.args.get('q', '') }}" placeholder="Buscar libros, autores, ISBN…" autocomplete="off">
+        <button class="search-submit" type="submit" aria-label="Buscar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false">
+            <circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/>
+          </svg>
+        </button>
+      </form>
+
+      <label class="theme-picker">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false">
+          <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/>
+        </svg>
+        <span class="sr-only">Tema de color</span>
+        <select id="theme-select" aria-label="Tema">
+          <option value="system">Sistema</option>
+          <option value="claro">Claro</option>
+          <option value="oscuro">Oscuro</option>
+        </select>
+      </label>
+
+      <div class="account-actions">
+        {% if session.get('user_id') %}
+        <span class="who">{{ session.get('username') }}</span>
+        <a class="btn btn-outline btn-sm" href="{{ url_for('auth.logout') }}">Salir</a>
+        {% else %}
+        <a class="btn btn-ghost btn-sm" href="{{ url_for('auth.login') }}">Entrar</a>
+        <a class="btn btn-sm" href="{{ url_for('auth.register') }}">Registro</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</header>
+<main class="container" id="contenido">
+{% with msgs = get_flashed_messages(with_categories=true) %}
+{% if msgs %}<ul class="flashes">{% for cat, m in msgs %}<li class="{{ cat }}">{{ m }}</li>{% endfor %}</ul>{% endif %}
+{% endwith %}
+{% block content %}{% endblock %}
+</main>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a class="brand" href="{{ url_for('catalog.home') }}">
+        <svg class="brand-mark" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+          <path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H10a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H5.5A1.5 1.5 0 0 0 4 18.5V4.5Z" fill="currentColor" opacity=".28"/>
+          <path d="M20 4.5A1.5 1.5 0 0 0 18.5 3H14a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h4.5a1.5 1.5 0 0 1 1.5 1.5V4.5Z" fill="currentColor"/>
+        </svg>
+        <span class="brand-name">Librería Bluffer</span>
+      </a>
+      <p>Tu próximo universo comienza con un libro. Descubre, guarda y explora títulos en un solo lugar.</p>
+    </div>
+    <div class="footer-col">
+      <h3>Navegación</h3>
+      <ul>
+        <li><a href="{{ url_for('catalog.home') }}">Inicio</a></li>
+        <li><a href="{{ url_for('catalog.explorar') }}">Explorar</a></li>
+        {% if session.get('user_id') %}
+        <li><a href="{{ url_for('library.favorites') }}">Favoritos</a></li>
+        <li><a href="{{ url_for('auth.perfil') }}">Perfil</a></li>
+        {% else %}
+        <li><a href="{{ url_for('auth.login') }}">Entrar</a></li>
+        <li><a href="{{ url_for('auth.register') }}">Registro</a></li>
+        {% endif %}
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h3>Cuenta</h3>
+      <ul>
+        {% if session.get('user_id') %}
+        <li><a href="{{ url_for('auth.perfil') }}">{{ session.get('username') }}</a></li>
+        <li><a href="{{ url_for('auth.logout') }}">Cerrar sesión</a></li>
+        {% else %}
+        <li><a href="{{ url_for('auth.login') }}">Iniciar sesión</a></li>
+        <li><a href="{{ url_for('auth.register') }}">Crear cuenta</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>Librería Bluffer · Uso local · Algunos enlaces son de afiliado</p>
+  </div>
+</footer>
+<script>
+(function(){
+  var root = document.documentElement, sel = document.getElementById('theme-select');
+  var saved = null;
+  try { saved = localStorage.getItem('nexus-theme') || 'system'; } catch(e){ saved = 'system'; }
+  function apply(v){ root.setAttribute('data-theme', v); if(sel) sel.value = v; }
+  apply(saved);
+  function mq(){ return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'oscuro' : 'claro'; }
+  function effective(){ return saved === 'system' ? mq() : saved; }
+  root.setAttribute('data-effective', effective());
+  if(sel){ sel.addEventListener('change', function(){ saved = sel.value; try{ localStorage.setItem('nexus-theme', saved);}catch(e){} apply(saved); root.setAttribute('data-effective', effective()); }); }
+
+  var header = document.getElementById('site-header');
+  var toggle = document.getElementById('nav-toggle');
+  function setOpen(open){
+    if(!header || !toggle) return;
+    header.classList.toggle('nav-open', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    toggle.setAttribute('aria-label', open ? 'Cerrar menú de navegación' : 'Abrir menú de navegación');
+  }
+  if(toggle){
+    toggle.addEventListener('click', function(){
+      setOpen(!header.classList.contains('nav-open'));
+    });
+    header.addEventListener('click', function(ev){
+      if(ev.target.closest('.main-nav a')) setOpen(false);
+    });
+    document.addEventListener('keydown', function(ev){
+      if(ev.key === 'Escape') setOpen(false);
+    });
+    if(window.matchMedia){
+      var wide = window.matchMedia('(min-width: 861px)');
+      (wide.addEventListener ? wide.addEventListener.bind(wide, 'change') : wide.addListener.bind(wide))(function(e){ if(e.matches) setOpen(false); });
+    }
+  }
+})();
+</script>
+</body>
+</html>

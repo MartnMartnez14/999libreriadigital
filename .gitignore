@@ -1,0 +1,7 @@
+.venv/
+.env
+instance/
+protected_books/
+__pycache__/
+*.pyc
+*.db

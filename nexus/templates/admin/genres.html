@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Géneros · Admin{% endblock %}
+{% block content %}
+<h1>Géneros</h1>
+<nav class="admin-nav" aria-label="Secciones de administración">
+  <a href="{{ url_for('admin.listar_libros') }}">Libros</a>
+  <a href="{{ url_for('admin.crear_libro') }}">Nuevo libro</a>
+  <a href="{{ url_for('admin.gestionar_autores') }}">Autores</a>
+  <a href="{{ url_for('admin.gestionar_editoriales') }}">Editoriales</a>
+  <a href="{{ url_for('admin.gestionar_generos') }}">Géneros</a>
+</nav>
+<section class="panel">
+<form method="post" class="form">
+<label>Nombre*<input name="name" required></label>
+<button class="btn" type="submit">Guardar</button>
+</form>
+</section>
+{% if generos %}
+<ul class="list-plain">{% for g in generos %}<li>{{ g['name'] }}</li>{% endfor %}</ul>
+{% else %}<p class="empty">Sin géneros.</p>{% endif %}
+{% endblock %}

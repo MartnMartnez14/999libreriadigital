@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Libros · Admin{% endblock %}
+{% block content %}
+<h1>Administración</h1>
+<nav class="admin-nav" aria-label="Secciones de administración">
+  <a href="{{ url_for('admin.listar_libros') }}">Libros</a>
+  <a href="{{ url_for('admin.crear_libro') }}">Nuevo libro</a>
+  <a href="{{ url_for('admin.gestionar_autores') }}">Autores</a>
+  <a href="{{ url_for('admin.gestionar_editoriales') }}">Editoriales</a>
+  <a href="{{ url_for('admin.gestionar_generos') }}">Géneros</a>
+</nav>
+{% if libros %}
+<div class="grid">
+{% for b in libros %}
+<article class="panel">
+  <h3>{{ b['title'] }}</h3>
+  <p class="meta">{{ b['author_names'] or 'Sin autor' }}{% if not b['is_available'] %} · <span class="off">Desactivado</span>{% endif %}</p>
+  <div class="admin-card-actions">
+    <a class="btn btn-outline btn-sm" href="{{ url_for('admin.editar_libro', book_id=b['id']) }}">Editar</a>
+    <form method="post" action="{{ url_for('admin.cambiar_estado', book_id=b['id']) }}">
+      <button class="btn btn-sm" type="submit">{% if b['is_available'] %}Desactivar{% else %}Activar{% endif %}</button>
+    </form>
+  </div>
+</article>
+{% endfor %}
+</div>
+{% else %}<p class="empty">Sin libros.</p>{% endif %}
+{% endblock %}

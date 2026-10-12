@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Explorar · Librería Bluffer{% endblock %}
+{% block content %}
+<h1>Explorar</h1>
+<form method="get" action="{{ url_for('catalog.explorar') }}" class="filters">
+  <input type="search" name="q" value="{{ q }}" placeholder="Título, autor, ISBN, sinopsis" aria-label="Buscar">
+  <select name="genero" aria-label="Género">
+    <option value="">Todos los géneros</option>
+    {% for g in generos %}<option value="{{ g['slug'] }}" {% if genero==g['slug'] %}selected{% endif %}>{{ g['name'] }}</option>{% endfor %}
+  </select>
+  <select name="idioma" aria-label="Idioma">
+    <option value="">Todos los idiomas</option>
+    {% for code, label in idiomas %}<option value="{{ code }}" {% if idioma==code %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select>
+  <select name="orden" aria-label="Orden">
+    <option value="novedad" {% if orden=='novedad' %}selected{% endif %}>Novedad</option>
+    <option value="titulo_az" {% if orden=='titulo_az' %}selected{% endif %}>Título A-Z</option>
+    <option value="anio" {% if orden=='anio' %}selected{% endif %}>Año (recientes primero)</option>
+  </select>
+  <button class="btn" type="submit">Filtrar</button>
+</form>
+
+<p class="results-info">{{ total }} resultado(s) · página {{ page }} de {{ pages }}</p>
+
+{% if libros %}
+<div class="grid">
+  {% for b in libros %}
+  <article class="book-card{% if b['id'] in fav_ids %} card-fav{% endif %}">
+    <div class="card-media">
+      {% if b['cover_path'] %}
+        {% if b['external_url'] %}
+        <a href="{{ b['external_url'] }}" target="_blank" rel="sponsored nofollow noopener" aria-label="Ver {{ b['title'] }} en tienda externa">
+          <img class="cover" src="{{ url_for('static', filename=b['cover_path']) }}" alt="Portada de {{ b['title'] }}" loading="lazy">
+        </a>
+        {% else %}
+        <a href="{{ url_for('catalog.detalle', book_id=b['id']) }}">
+          <img class="cover" src="{{ url_for('static', filename=b['cover_path']) }}" alt="Portada de {{ b['title'] }}" loading="lazy">
+        </a>
+        {% endif %}
+      {% else %}
+      <div class="cover-placeholder" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H10a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H5.5A1.5 1.5 0 0 0 4 18.5V4.5Z"/><path d="M20 4.5A1.5 1.5 0 0 0 18.5 3H14a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h4.5a1.5 1.5 0 0 1 1.5 1.5V4.5Z"/></svg>
+      </div>
+      {% endif %}
+      {% if session.get('user_id') %}
+      <form class="card-fav-form" method="post" action="{{ url_for('library.toggle_favorite', book_id=b['id']) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="fav-btn{% if b['id'] in fav_ids %} fav-on{% endif %}" aria-label="{% if b['id'] in fav_ids %}Quitar{% else %}Añadir{% endif %} {{ b['title'] }} de favoritos">♥</button>
+      </form>
+      {% endif %}
+    </div>
+    <div class="card-body">
+      <h3 class="card-title"><a href="{{ url_for('catalog.detalle', book_id=b['id']) }}">{{ b['title'] }}</a></h3>
+      {% if b['author_names'] %}<p class="card-author">{{ b['author_names'] }}</p>{% endif %}
+      {% if b['genre_names'] %}<p class="card-meta">{{ b['genre_names'] }}</p>{% endif %}
+      {% if b['publication_year'] %}<p class="card-meta">{{ b['publication_year'] }}</p>{% endif %}
+    </div>
+  </article>
+  {% endfor %}
+</div>
+
+<nav class="pagination" aria-label="Paginación">
+  {% if page > 1 %}<a href="{{ url_for('catalog.explorar', q=q, genero=genero, idioma=idioma, orden=orden, page=page-1) }}">← Anterior</a>{% endif %}
+  <span class="current">{{ page }} / {{ pages }}</span>
+  {% if page < pages %}<a href="{{ url_for('catalog.explorar', q=q, genero=genero, idioma=idioma, orden=orden, page=page+1) }}">Siguiente →</a>{% endif %}
+</nav>
+{% else %}<p class="empty">Sin resultados para esta búsqueda.</p>{% endif %}
+{% endblock %}

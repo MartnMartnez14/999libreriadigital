@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Perfil · Bluffer{% endblock %}
+{% block content %}
+<h1>Perfil de {{ user['username'] }}</h1>
+<div class="stats">
+  <div class="stat"><div class="stat-value">{{ counts['en_biblio'] }}</div><div class="stat-label">En biblioteca</div></div>
+  <div class="stat"><div class="stat-value">{{ counts['en_favs'] }}</div><div class="stat-label">Favoritos</div></div>
+</div>
+<section class="panel stack">
+  <p class="meta">Email: {{ user['email'] or '—' }} · Rol: {{ user['role'] }} · Alta: {{ user['created_at'] }}</p>
+</section>
+<section class="panel stack">
+  <h2>Cambiar contraseña</h2>
+  <form method="post" class="form" action="{{ url_for('auth.perfil') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Contraseña actual<input name="actual" type="password" required autocomplete="current-password"></label>
+    <label>Nueva contraseña (mínimo 6)<input name="nueva" type="password" required autocomplete="new-password"></label>
+    <button class="btn" type="submit">Actualizar</button>
+  </form>
+</section>
+<form method="post" action="{{ url_for('auth.logout') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button class="btn btn-outline" type="submit">Cerrar sesión</button>
+</form>
+{% endblock %}

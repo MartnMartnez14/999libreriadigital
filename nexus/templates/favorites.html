@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Favoritos · Bluffer{% endblock %}
+{% block content %}
+<div class="section-head"><h1>♥ Favoritos</h1></div>
+{% if favs %}
+<div class="grid">
+  {% for b in favs %}
+  <article class="book-card card-fav">
+    <div class="card-media">
+      {% if b['cover_path'] %}
+        {% if b['external_url'] %}
+        <a href="{{ b['external_url'] }}" target="_blank" rel="sponsored nofollow noopener" aria-label="Ver {{ b['title'] }} en tienda externa">
+          <img class="cover" src="{{ url_for('static', filename=b['cover_path']) }}" alt="Portada de {{ b['title'] }}" loading="lazy">
+        </a>
+        {% else %}
+        <a href="{{ url_for('catalog.detalle', book_id=b['id']) }}">
+          <img class="cover" src="{{ url_for('static', filename=b['cover_path']) }}" alt="Portada de {{ b['title'] }}" loading="lazy">
+        </a>
+        {% endif %}
+      {% else %}
+      <div class="cover-placeholder" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H10a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H5.5A1.5 1.5 0 0 0 4 18.5V4.5Z"/><path d="M20 4.5A1.5 1.5 0 0 0 18.5 3H14a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h4.5a1.5 1.5 0 0 1 1.5 1.5V4.5Z"/></svg>
+      </div>
+      {% endif %}
+    </div>
+    <div class="card-body">
+      <h3 class="card-title"><a href="{{ url_for('catalog.detalle', book_id=b['id']) }}">{{ b['title'] }}</a></h3>
+      {% if b['author_names'] %}<p class="card-author">{{ b['author_names'] }}</p>{% endif %}
+      {% if b['publication_year'] %}<p class="card-meta">{{ b['publication_year'] }}</p>{% endif %}
+      <form class="card-actions" method="post" action="{{ url_for('library.toggle_favorite', book_id=b['id']) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="fav-btn fav-on" aria-label="Quitar {{ b['title'] }} de favoritos">♥ Quitar</button>
+      </form>
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% else %}<p class="empty">Sin favoritos todavía. Marca libros con el ♥ desde el catálogo.</p>{% endif %}
+{% endblock %}

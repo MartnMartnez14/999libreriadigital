@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Mi biblioteca · Bluffer{% endblock %}
+{% block content %}
+<h1>Mi biblioteca</h1>
+
+<div class="stats">
+  <div class="stat"><div class="stat-value">{{ contadores['total'] or 0 }}</div><div class="stat-label">Total</div></div>
+  <div class="stat"><div class="stat-value">{{ contadores['pendientes'] or 0 }}</div><div class="stat-label">Pendientes</div></div>
+  <div class="stat"><div class="stat-value">{{ contadores['leyendo'] or 0 }}</div><div class="stat-label">Leyendo</div></div>
+  <div class="stat"><div class="stat-value">{{ contadores['terminados'] or 0 }}</div><div class="stat-label">Terminados</div></div>
+</div>
+
+{% if entradas %}
+<div class="library-list">
+  {% for e in entradas %}
+  <div class="library-item">
+    <div>
+      <h3>{{ e['title'] }}</h3>
+      <p class="meta">
+        <span class="badge badge-{{ e['status'] }}">{{ e['status'] }}</span>
+        <span style="margin-left:.35rem">{{ e['progress_percent'] }}%</span>
+      </p>
+      <div class="progress" role="progressbar" aria-valuenow="{{ e['progress_percent'] }}" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso de {{ e['title'] }}">
+        <span style="width: {{ e['progress_percent'] }}%"></span>
+      </div>
+    </div>
+    <div class="library-forms">
+      <form method="post" action="{{ url_for('library.update_status', book_id=e['id']) }}" class="library-forms">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <select name="status" aria-label="Estado de {{ e['title'] }}">
+          <option value="pendiente" {% if e['status']=='pendiente' %}selected{% endif %}>pendiente</option>
+          <option value="leyendo" {% if e['status']=='leyendo' %}selected{% endif %}>leyendo</option>
+          <option value="terminado" {% if e['status']=='terminado' %}selected{% endif %}>terminado</option>
+        </select>
+        <input name="progress_percent" type="number" min="0" max="100" value="{{ e['progress_percent'] }}" aria-label="Progreso">
+        <button class="btn btn-sm" type="submit">Guardar</button>
+      </form>
+      <form method="post" action="{{ url_for('library.remove_book', book_id=e['id']) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-outline btn-sm" type="submit">Quitar</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}<p class="empty">Biblioteca vacía.</p>{% endif %}
+{% endblock %}

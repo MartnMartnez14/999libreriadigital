@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Nuevo libro · Admin{% endblock %}
+{% block content %}
+<h1>{% if libro %}Editar{% else %}Nuevo{% endif %} libro</h1>
+<nav class="admin-nav" aria-label="Secciones de administración">
+  <a href="{{ url_for('admin.listar_libros') }}">Libros</a>
+  <a href="{{ url_for('admin.crear_libro') }}">Nuevo libro</a>
+  <a href="{{ url_for('admin.gestionar_autores') }}">Autores</a>
+  <a href="{{ url_for('admin.gestionar_editoriales') }}">Editoriales</a>
+  <a href="{{ url_for('admin.gestionar_generos') }}">Géneros</a>
+</nav>
+<section class="panel">
+<form method="post" class="form" enctype="multipart/form-data">
+<label>Título*<input name="title" required value="{{ libro['title'] if libro else '' }}"></label>
+<label>Sinopsis<textarea name="synopsis">{{ libro['synopsis'] if libro and libro['synopsis'] else '' }}</textarea></label>
+<label>Editorial<select name="publisher_id">
+<option value="">— Sin editorial —</option>
+{% for p in editoriales %}<option value="{{ p['id'] }}" {% if libro and libro['publisher_id']==p['id'] %}selected{% endif %}>{{ p['name'] }}</option>{% endfor %}
+</select></label>
+<label>Año<input name="publication_year" type="number" min="1000" max="2100" value="{{ libro['publication_year'] if libro and libro['publication_year'] else '' }}"></label>
+<label>Idioma<select name="language">
+<option value="es" {% if not libro or libro['language']=='es' %}selected{% endif %}>Español</option>
+<option value="en" {% if libro and libro['language']=='en' %}selected{% endif %}>English</option>
+</select></label>
+<label>ISBN<input name="isbn" value="{{ libro['isbn'] if libro and libro['isbn'] else '' }}"></label>
+<label>Portada (PNG/JPG/WEBP, máx 2 MB)<input type="file" name="cover" accept=".png,.jpg,.jpeg,.webp"></label>
+{% if libro and libro['cover_path'] %}<p><img src="{{ url_for('static', filename=libro['cover_path']) }}" alt="Portada actual" style="max-width:120px;border-radius:10px"></p>{% endif %}
+<label>URL de afiliado<input name="external_url" type="url" placeholder="https://tienda.../?tag=tu-tag" value="{{ libro['external_url'] if libro and libro['external_url'] else '' }}"></label>
+<label>Autor<select name="author_ids">
+<option value="">— Sin autor —</option>
+{% for a in autores %}<option value="{{ a['id'] }}" {% if sel_a is defined and a['id'] in sel_a %}selected{% endif %}>{{ a['name'] }}</option>{% endfor %}
+</select></label>
+<label>Género<select name="genre_ids">
+<option value="">— Sin género —</option>
+{% for g in generos %}<option value="{{ g['id'] }}" {% if sel_g is defined and g['id'] in sel_g %}selected{% endif %}>{{ g['name'] }}</option>{% endfor %}
+</select></label>
+<button class="btn" type="submit">Guardar</button>
+</form>
+</section>
+{% endblock %}
